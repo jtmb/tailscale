@@ -51,7 +51,10 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Run Docker static tests
+      - name: Prepare synthetic test scratch on a clean runner
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/prepare_test_scratch.py
+
+      - name: Run source tests
         run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 
       - name: Validate Compose without reading a project env file

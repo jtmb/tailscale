@@ -9,6 +9,7 @@ is still pending.** See the [acceptance checklist](docs/acceptance.md).
 These commands do not load `.env`, join a tailnet, publish ports, or deploy to Kubernetes:
 
 ```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/prepare_test_scratch.py
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 docker build --target tailscale --tag jtmb/tailscale:dev .
 docker build --target opencode --tag jtmb/tailscale-opencode:dev .
@@ -80,16 +81,18 @@ project. Kubernetes runtime OAuth/state Secrets still require cluster-side prote
 
 ## GitHub and maintenance
 
-The public [jtmb/tailscale](https://github.com/jtmb/tailscale) repository exists, and local
-`origin` points there. Source has not yet been committed or pushed; no GHCR image is
-published. The draft workflow validates changes and publishes only after explicit manual
+The public [jtmb/tailscale](https://github.com/jtmb/tailscale) repository contains initial
+commit `669139f`, verified on `origin/main`. No GHCR image is published. The first
+hosted validation run found a missing clean-runner scratch prerequisite; the local fix
+is awaiting its own commit/push approval and remote verification. The workflow validates
+changes and publishes only after explicit manual
 opt-in on `main`. Publication is serialized and checks that version/SHA tags do not exist.
 Derivative tags include a revision, initially `v1.104.2-r1`, plus the full source SHA.
 
 The optional OpenCode helper image is built locally, not published by this workflow.
 Weekly Dependabot proposals cover Docker bases and GitHub Actions; nothing auto-merges
-or auto-deploys. These remote workflows are not active while the GitHub repository is empty.
-Commit, push/CI activation, weekly proposals and image publication require their own approvals.
+or auto-deploys. Initial push, CI and weekly proposals were explicitly approved and activated.
+Subsequent commits, pushes and image publication require their own approvals.
 
 ## External MCP boundary
 
