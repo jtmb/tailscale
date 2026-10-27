@@ -1,4 +1,4 @@
-FROM ghcr.io/anomalyco/opencode:2.0.0@sha256:c714c5ca046223a782faac0a5fdd3971cf3a57f39bd45eaf7d1a8b82f37ad183 AS opencode
+FROM ghcr.io/anomalyco/opencode:2.2.0@sha256:5c3331cec2581570c1b07cb695462c0f7d35d119750b430016adf66a774dbe8f AS opencode
 
 USER 0:0
 RUN mkdir -p /home/opencode/.local/share/opencode /home/opencode/.config/opencode \
