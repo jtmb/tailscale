@@ -66,3 +66,21 @@ This ledger separates the Tailscale project from its external MCP dependency. Th
 4. Run actual authorized/unauthorized/second-device tailnet tests and approved cluster deployment; do not substitute offline tests for these gates.
 
 Detailed prompt-to-artifact evidence and remaining gaps: [acceptance checklist](docs/acceptance.md).
+
+## Daemon supervision
+
+The unprivileged userspace daemon is supervised by a systemd **user** unit so a restart does not depend on this session:
+
+```bash
+mkdir -p ~/.config/systemd/user
+install -m 0644 deploy/systemd/tailscaled-userspace.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now tailscaled-userspace.service
+```
+
+Verified: the unit is `active` and `enabled`, the daemon reports `Running` with the same `tag:opencode` identity and tailnet IPs, the Serve mapping is still `(tailnet only)`, and an independent node still receives `200` with a valid certificate.
+
+Limitations:
+
+- `loginctl` reports `Linger=no`, so the user unit starts only after a login session; enabling lingering needs an administrator decision.
+- Rollback: `systemctl --user disable --now tailscaled-userspace.service` stops supervision. The Serve mapping and node identity remain in the private state directory.
