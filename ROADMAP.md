@@ -27,7 +27,9 @@ This ledger separates the Tailscale project from its external MCP dependency. Th
 
 ## Remaining gates
 
-- A second **distinct-user** identity was not available, so denial was proven with a tag-scoped identity rather than a separate person. The temporary `opencode-client` and `opencode-denied` test nodes still need removal from the tailnet.
+- A second **distinct-user** identity was not available, so denial was proven with a tag-scoped identity rather than a separate person.
+- The temporary `opencode-client` and `opencode-denied` nodes are stopped locally, but their device records could not be deleted through the console's accessibility tree; remove them manually from **Machines**.
+- The native userspace daemon has no systemd unit, so it does not survive a host reboot and is restarted manually with the recorded flags. Its tailnet identity, tags, IPs and Serve mapping do survive the restart.
 - Kubernetes deployment remains blocked, and the external MCP project is still unimplemented.
 
 ## Verified environment facts and blockers
