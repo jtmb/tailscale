@@ -1,6 +1,6 @@
 # Roadmap and Handoff Status
 
-This ledger separates the Tailscale project from its external MCP dependency. No live deployment, public image, or private OpenCode V2 test has been achieved.
+This ledger separates the Tailscale project from its external MCP dependency. The public source and versioned GHCR image are published and verified. Tailnet-only authenticated HTTPS access to the existing host OpenCode service is **live and verified**; Kubernetes deployment and the external MCP integration remain blocked on access.
 
 ## Scope split
 
@@ -11,10 +11,24 @@ This ledger separates the Tailscale project from its external MCP dependency. No
 
 1. **Tailscale Docker image and Compose** — Local builds and three isolated runtime regressions are **VERIFIED**. Readiness was corrected after CLI status falsely succeeded in NeedsLogin; optional OpenCode now also runs non-root. Live tailnet acceptance remains **PENDING**.
 2. **Actual Tailscale Kubernetes workload configuration for `192.168.0.4`** — Secret-free, disabled-until-selected Ingress and official chart pin are **VERIFIED OFFLINE**, including signed-tool Helm lint/render. No live deployment has been achieved.
-3. **GitHub `jtmb/tailscale` and GHCR image** — Approved initial commit `669139f` is pushed and independently verified on public `main`; CI and weekly Dependabot proposals activated. First CI run `40557690636` failed on absent `/tmp/opencode`; safe bootstrap and regression tests are prepared locally, pending separate commit/push approval. Image publication remains **PENDING**.
+3. **GitHub `jtmb/tailscale` and GHCR image** — **VERIFIED**. Public `main` at `1a41a1e`; Actions restricted to four exact SHA-pinned actions; validation run `40562230662` and publication run `40563651852` succeeded. `ghcr.io/jtmb/tailscale:v1.104.2-r1` and the source-SHA tag both resolve to index `sha256:80c4a9a3b327475b330e76f9c31b52b7038e44963c58f2a90a3493f28dcac993` with amd64, arm64 and two attestation manifests.
 4. **Tailscale-specific project skills** — Bundle/catalog/link and five source tests **VERIFIED**. Fresh-session/live operational acceptance is **PENDING**. MCP-specific skills remain external to this repo.
 5. **Secure local configuration** — The local helper and example exist, but user-side setup and deployment integration remain **PENDING**. No Bortus-only deploy-token keys belong here, and no automatic secret sharing/copying is intended.
-6. **Private OpenCode V2 test** — **PENDING**. The intended test is the authenticated same-server UI and pairing flow; the route must be discovered rather than assumed.
+6. **Private OpenCode V2 test** — **VERIFIED LIVE**. Host enrolled by user-approved interactive browser login as `opencode-host` with `tag:opencode`; tailnet HTTPS certificates enabled; Serve maps `https://opencode-host.tail3c9b71.ts.net/` (port 443) to `http://127.0.0.1:49374` and reports `(tailnet only)`. OpenCode now binds `127.0.0.1:49374` only, so the former LAN exposure is closed and nothing listens on host port 443.
+
+## Live acceptance evidence (2026-10-27)
+
+- Authorized node (`opencode-client`, signed-in owner identity) reached `https://opencode-host.tail3c9b71.ts.net/` over the tailnet: HTTP 200 with `ssl_verify_result=0`, `/web` 200, unauthenticated `/api/info` 401.
+- Unauthorized tailnet identity (`opencode-denied`, tagged `tag:opencode`) was refused by policy while the same request from the authorized node succeeded.
+- No host interface listens on 443; TCP 49374 listens only on `127.0.0.1`, so the LAN path that previously exposed the service is closed.
+- Funnel is not enabled: both `serve status` and `funnel status` report `(tailnet only)`.
+- Native daemon restart preserved the same node identity, tags and tailnet IPs, and the Serve mapping survived; positive and negative probes were repeated afterwards with identical results.
+- Application authentication remains enforced by OpenCode itself (401 without credentials); an authenticated app session was not exercised by the agent.
+
+## Remaining gates
+
+- A second **distinct-user** identity was not available, so denial was proven with a tag-scoped identity rather than a separate person. The temporary `opencode-client` and `opencode-denied` test nodes still need removal from the tailnet.
+- Kubernetes deployment remains blocked, and the external MCP project is still unimplemented.
 
 ## Verified environment facts and blockers
 
